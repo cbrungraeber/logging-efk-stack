@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'de.eng'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    slf4jApiVersion = '1.7.25'
+    logbackVersion = '1.2.3'
+    logstashLogbackEncoderVersion = '5.2'
+    junitVersion = '4.1.2'
+    apmAgentVersion = '0.7.1'
+}
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: "$slf4jApiVersion"
+
+    compile group: 'ch.qos.logback', name: 'logback-core', version: "$logbackVersion"
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: "$logbackVersion"
+    compile group: 'ch.qos.logback', name: 'logback-access', version: "$logbackVersion"
+
+    compile group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: "$logstashLogbackEncoderVersion"
+
+    compile group: 'co.elastic.apm', name: 'elastic-apm-agent', version: "$apmAgentVersion"
+
+    testCompile group: 'junit', name: 'junit', version: "$junitVersion"
+}
+
+mainClassName = "de.eng.Main"
+
+applicationDefaultJvmArgs = [
+    "-javaagent:./lib/elastic-apm-agent-${apmAgentVersion}.jar",
+    "-Delastic.apm.service_name=application",
+    "-Delastic.apm.application_packages=de.eng",
+    "-Delastic.apm.server_urls=http://apm-server:8200"
+]

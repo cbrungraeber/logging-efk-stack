@@ -1,0 +1,131 @@
+version: '2.3'
+
+services:
+
+  # Elasticsearch is a distributed, RESTful search and analytics engine
+  # capable of solving a growing number of use cases.
+  elasticsearch:
+    build:
+      context: elasticsearch
+      args:
+        VERSION: 6.4.2
+    environment:
+      ES_JAVA_OPTS: '-Xmx1024m -Xms1024m'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - loggingnet
+    ports:
+      - 127.0.0.1:9200:9200
+    # volumes:
+    #  - elasticsearchData:/usr/share/elasticsearch/data
+    stop_grace_period: 30s
+    restart: unless-stopped
+    mem_limit: 2g
+    healthcheck:
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Fluentd is an open source data collector for unified logging layer.
+  # Fluentd allows you to unify data collection and consumption for a better use and understanding of data.
+  fluentd:
+    build:
+      context: fluentd
+      args:
+        VERSION: v1.2.6
+    ports:
+      - 127.0.0.1:24224:24224
+      - 127.0.0.1:24224:24224/udp
+      - 127.0.0.1:9880:9880
+    networks:
+      - loggingnet
+    restart: unless-stopped
+    mem_limit: 200m
+
+  # Kibana is an open source analytics and visualization platform
+  # designed to work with Elasticsearch.
+  kibana:
+    build:
+      context: kibana
+      args:
+        VERSION: 6.4.2
+    networks:
+      - loggingnet
+    ports:
+      - 127.0.0.1:5601:5601
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    mem_limit: 500m
+    healthcheck:
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Application Performance Monitoring (APM) collects in-depth performance metrics
+  # and errors from inside your application.
+  apm-server:
+    build:
+      context: apm-server
+      args:
+        VERSION: 6.4.2
+    networks:
+      - loggingnet
+    ports:
+      - 127.0.0.1:8200:8200
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    mem_limit: 1g
+
+
+  # Metricbeat is a lightweight shipper that you can install on your servers to periodically
+  # collect metrics from the operating system and from services running on the server.
+  metricbeat:
+    build:
+      context: metricbeat
+      args:
+        VERSION: 6.4.2
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/hostfs
+    networks:
+      - loggingnet
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    mem_limit: 1g
+
+
+  # cerebro is an open source elasticsearch web admin tool
+  cerebro:
+    image: yannart/cerebro:latest
+    ports:
+      - 127.0.0.1:5602:9000
+    labels:
+      com.yourwork.autoheal: 'true'
+    depends_on:
+      - elasticsearch
+    networks:
+      - loggingnet
+    mem_limit: 2g
+    restart: unless-stopped
+    healthcheck:
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+
+networks:
+  loggingnet:
+
+volumes:
+  elasticsearchData:

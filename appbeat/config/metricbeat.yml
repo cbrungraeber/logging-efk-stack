@@ -1,0 +1,20 @@
+metricbeat.modules:
+
+  # This module periodically fetches metrics from Nginx servers.
+  # The default metricset is stubstatus.
+  # https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-module-nginx.html
+  - module: nginx
+    metricsets:
+      - "stubstatus"
+    hosts:
+      - "http://nginx"
+    server_status_path: "status"
+    period: 10s
+    enabled: true
+
+output.elasticsearch:
+  hosts:
+    - "host.docker.internal:9200"
+
+setup.kibana:
+  host: "host.docker.internal:5601"

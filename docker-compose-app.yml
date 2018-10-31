@@ -1,0 +1,59 @@
+version: '2.3'
+
+services:
+
+  # A sample application whose logs are to be aggregated
+  application:
+    build:
+      context: application
+
+    # The fluentd logging driver sends container logs to the Fluentd collector
+    # as structured log data. Then, users can use any of the various output
+    # plugins of Fluentd to write these logs to various destinations.
+    # https://docs.docker.com/config/containers/logging/fluentd/
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        tag: application
+    networks:
+      - applicationnet
+    restart: unless-stopped
+    mem_limit: 1g
+
+  # Nginx (pronounced "engine-x") is an open source reverse proxy server for
+  # HTTP, HTTPS, SMTP, POP3, and IMAP protocols, as well as a load balancer,
+  # HTTP cache, and a web server (origin server).
+  nginx:
+    build:
+      context: nginx
+      args:
+        VERSION: stable
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        tag: nginx
+    ports:
+      - 127.0.0.1:8080:80
+    networks:
+      - applicationnet
+    restart: unless-stopped
+    mem_limit: 100m
+
+  # Metricbeat is a lightweight shipper that you can install on your servers to periodically
+  # collect metrics from the operating system and from services running on the server.
+  appbeat:
+    build:
+      context: appbeat
+      args:
+        VERSION: 6.4.2
+    networks:
+      - applicationnet
+    restart: unless-stopped
+    mem_limit: 1g
+
+networks:
+  applicationnet:

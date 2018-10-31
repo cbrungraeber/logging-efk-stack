@@ -1,0 +1,6 @@
+{
+  "log": "87.166.36.146 - - [31/Oct/2018:19:05:16 +0000] \"GET /foobar HTTP/1.1\" 200 0 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36\" \"-\"",
+  "container_id": "fa46c7c1d7a0211b1eb6ca51e8e5a45a303a1fd257fbc43b0fd6248b30a5948f",
+  "container_name": "/logging-efk-docker_nginx_1",
+  "source": "stdout"
+}
