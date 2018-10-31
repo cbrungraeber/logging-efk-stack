@@ -1,5 +1,34 @@
 # EFK
 
+## Quick Start
+
+Start up the log aggregation infrastructure:
+
+```
+docker-compose -f docker-compose-efk.yml
+```
+
+Afterwards, start up the application:
+
+```
+docker-compose -f docker-compose-app.yml
+```
+
+You can access kibana in your browser via `http://localhost:5601`.
+Cerebro is accessible at `http://localhost:5602`. Use `http://elasticsearch:9200` as the `Node adress`.
+
+## Sending Arbitrary Events to Fluentd
+
+It is pretty easy to send arbitrary events to Fluentd Using curl and the [HTTP input plugin](https://docs.fluentd.org/v1.0/articles/in_http) listening at port 9800.
+
+Here is a simple example to post a record with the tag `nginx`, which will be parsed by the [nginx parser plugin](https://docs.fluentd.org/v1.0/articles/parser_nginx)
+
+```
+$ curl -X POST -d @events/nginx.json -H 'Content-Type: application/json' http://localhost:9880/nginx
+```
+
+## The Stack
+
 - [docker](https://www.docker.com/)
 - [docker-compose](https://docs.docker.com/compose/)
 - [Elasticsearch OSS](https://www.elastic.co/de/products/elasticsearch)
@@ -15,13 +44,3 @@
 - [cerebro](https://github.com/lmenezes/cerebro)
 - [apm-server](https://www.elastic.co/solutions/apm)
 - [metricbeat](https://www.elastic.co/de/products/beats/metricbeat)
-
-## Sending Arbitrary Events to Fluentd
-
-It is pretty easy to send arbitrary events to Fluentd Using curl and the [HTTP input plugin](https://docs.fluentd.org/v1.0/articles/in_http) listening at port 9800.
-
-Here is a simple example to post a record with the tag `nginx`, which will be parsed by the [nginx parser plugin](https://docs.fluentd.org/v1.0/articles/parser_nginx)
-
-```
-$ curl -X POST -d @events/nginx.json -H 'Content-Type: application/json' http://localhost:9880/nginx
-```
