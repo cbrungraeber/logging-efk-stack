@@ -1,4 +1,12 @@
-/application/.gradle/
-/application/.idea/
-/application/build/
-/application/out/
+/simpleapplication/.gradle/
+/simpleapplication/.idea/
+/simpleapplication/build/
+/simpleapplication/out/
+
+/tomcat/hello/target
+/tomcat/hello/!.mvn/wrapper/maven-wrapper.jar
+
+.idea
+*.iws
+*.iml
+*.ipr

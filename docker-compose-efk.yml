@@ -5,6 +5,7 @@ services:
   # Elasticsearch is a distributed, RESTful search and analytics engine
   # capable of solving a growing number of use cases.
   elasticsearch:
+    container_name: elasticsearch
     build:
       context: elasticsearch
       args:
@@ -30,9 +31,11 @@ services:
       retries: 3
       start_period: 30s
 
+      
   # Fluentd is an open source data collector for unified logging layer.
   # Fluentd allows you to unify data collection and consumption for a better use and understanding of data.
   fluentd:
+    container_name: fluentd
     build:
       context: fluentd
       args:
@@ -46,9 +49,11 @@ services:
     restart: unless-stopped
     mem_limit: 200m
 
+
   # Kibana is an open source analytics and visualization platform
   # designed to work with Elasticsearch.
   kibana:
+    container_name: kibana
     build:
       context: kibana
       args:
@@ -67,45 +72,28 @@ services:
       retries: 3
       start_period: 30s
 
+
   # Application Performance Monitoring (APM) collects in-depth performance metrics
   # and errors from inside your application.
-  apm-server:
+  apmserver:
+    container_name: apmserver
     build:
       context: apm-server
       args:
         VERSION: 6.4.2
-    networks:
-      - loggingnet
     ports:
       - 127.0.0.1:8200:8200
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-    mem_limit: 1g
-
-
-  # Metricbeat is a lightweight shipper that you can install on your servers to periodically
-  # collect metrics from the operating system and from services running on the server.
-  metricbeat:
-    build:
-      context: metricbeat
-      args:
-        VERSION: 6.4.2
-    volumes:
-      - /proc:/hostfs/proc:ro
-      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /:/hostfs
+    environment:
+      ELASTICSEARCH: elasticsearch:9200
     networks:
       - loggingnet
-    depends_on:
-      - elasticsearch
     restart: unless-stopped
     mem_limit: 1g
 
 
   # cerebro is an open source elasticsearch web admin tool
   cerebro:
+    container_name: cerebro
     image: yannart/cerebro:latest
     ports:
       - 127.0.0.1:5602:9000
@@ -122,6 +110,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+
+  # Restores custom dashboards on startup
+  #dashboards:
+  #  build:
+  #    context: dashboards
+  #  environment:
+  #    ELASTICSEARCH: 'elasticsearch:9200'
+  #  depends_on:
+  #    - elasticsearch
+  #  networks:
+  #    - loggingnet
+  #  mem_limit: 100m
 
 
 networks:

@@ -1,2 +1,10 @@
+# https://github.com/elastic/apm-server/blob/master/apm-server.yml
+# httpsfronten://www.elastic.co/guide/en/apm/server/current/configuring-howto-apm-server.html
+apm-server:
+  host: "0.0.0.0:8200"
+  concurrent_requests: 5
+
+logging.level: debug
+
 output.elasticsearch:
-    hosts: ["elasticsearch"]
+    hosts: ["${ELASTICSEARCH}"]

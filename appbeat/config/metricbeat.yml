@@ -1,3 +1,5 @@
+# logging.level: "debug"
+
 metricbeat.modules:
 
   # This module periodically fetches metrics from Nginx servers.
@@ -9,6 +11,75 @@ metricbeat.modules:
     hosts:
       - "http://nginx"
     server_status_path: "status"
+    period: 30s
+    enabled: true
+
+  # This module collects metrics from Jolokia agents running on a target JMX server
+  # or dedicated proxy server. The default metricset is jmx.
+  # The jmx metricset collects metrics from Jolokia agents.
+  # https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-metricset-jolokia-jmx.html
+  # https://www.elastic.co/blog/brewing-in-beats-add-support-for-jolokia-lmx
+  # https://www.elastic.co/de/blog/monitoring-java-applications-with-metricbeat-and-jolokia
+  - module: jolokia
+    metricsets:
+      - "jmx"
+    hosts:
+      - "tomcat:8080"
+    namespace: "tomcat"
+    path: "/jolokia/?ignoreErrors=true&canonicalNaming=false"
+    username: "jolokia"
+    password: "jolokia"
+    jmx.mappings:
+      - mbean: "java.lang:type=Runtime"
+        attributes:
+          - attr: "Uptime"
+            field: "uptime"
+      - mbean: "java.lang:type=Memory"
+        attributes:
+          - attr: "HeapMemoryUsage"
+            field: "memory.heap_usage"
+            event: "memory"
+          - attr: "NonHeapMemoryUsage"
+            field: "memory.non_heap_usage"
+            event: "memory"
+      - mbean: "java.lang:type=Threading"
+        attributes:
+          - attr: "ThreadCount"
+            field: "thread.count"
+            event: "threads"
+          - attr: "DaemonThreadCount"
+            field: "thread.daemon"
+            event: "threads"
+      # Tomcat thread pools
+      - mbean: "Catalina:name=*,type=ThreadPool"
+        attributes:
+          - attr: "currentThreadCount"
+            field: "thread.count"
+            event: "catalina"
+          - attr: "maxThreads"
+            field: "thread.max"
+            event: "catalina"
+          - attr: "connectionCount"
+            field: "connection.count"
+            event: "catalina"
+      # GC Metrics
+      # Check curl -X GET 'jolokia:jolokia@localhost:8000/jolokia/read/java.lang:type=GarbageCollector,name=*' | jq .
+      - mbean: "java.lang:type=GarbageCollector,name=G1 Old Generation"
+        attributes:
+          - attr: "CollectionTime"
+            field: "gc.old.cms_collection_time"
+            event: "gc"
+          - attr: "CollectionCount"
+            field: "gc.old.cms_collection_count"
+            event: "gc"
+      - mbean: "java.lang:type=GarbageCollector,name=G1 Young Generation"
+        attributes:
+          - attr: "CollectionTime"
+            field: "gc.young.cms_collection_time"
+            event: "gc"
+          - attr: "CollectionCount"
+            field: "gc.young.cms_collection_count"
+            event: "gc"
     period: 10s
     enabled: true
 

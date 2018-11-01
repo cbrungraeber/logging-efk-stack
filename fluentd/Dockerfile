@@ -24,5 +24,7 @@ RUN echo "http://nl.alpinelinux.org/alpine/v3.7/main" > /tmp/repositories \
     && curl --silent -O http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz \
     && gunzip GeoLite2-City.mmdb.gz
 
+    # && fluent-gem install fluent-plugin-jmx \
+
 COPY ./config/ /fluentd/etc/
 COPY ./templates/fluentd.json /

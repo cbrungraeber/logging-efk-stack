@@ -3,10 +3,10 @@ version: '2.3'
 services:
 
   # A sample application whose logs are to be aggregated
-  application:
+  simpleapplication:
+    container_name: simpleapplication
     build:
-      context: application
-
+      context: simpleapplication
     # The fluentd logging driver sends container logs to the Fluentd collector
     # as structured log data. Then, users can use any of the various output
     # plugins of Fluentd to write these logs to various destinations.
@@ -14,18 +14,50 @@ services:
     logging:
       driver: fluentd
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: host.docker.internal:24224
         fluentd-async-connect: 'true'
-        tag: application
+        tag: simpleapplication
     networks:
       - applicationnet
     restart: unless-stopped
     mem_limit: 1g
 
+
+  # Apache Tomcat is an open source implementation of the Java Servlet
+  # and JavaServer Pages technologies
+  tomcat:
+    container_name: tomcat
+    build:
+      context: tomcat
+      args:
+        JDK_VERSION: 8
+        TOMCAT_VERSION: 9-jre8
+    environment:
+      CATALINA_OPTS: '-javaagent:/usr/local/tomcat/elastic-apm-agent.jar
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=400'
+
+      # Elastic APM Java Agent
+      # https://www.elastic.co/guide/en/apm/agent/java/current/configuration.html
+      ELASTIC_APM_SERVICE_NAME: 'hello'
+      ELASTIC_APM_APPLICATION_PACKAGES: 'de.eng'
+      ELASTIC_APM_SERVER_URLS: 'http://host.docker.internal:8200'
+      ELASTIC_APM_LOG_LEVEL: 'debug'
+      ELASTIC_APM_STACK_TRACE_LIMIT: -1
+      ELASTIC_APM_SPAN_FRAMES_MIN_DURATION: -1
+    networks:
+      - applicationnet
+    ports:
+      - 127.0.0.1:8000:8080
+    restart: unless-stopped
+    mem_limit: 1g
+
+
   # Nginx (pronounced "engine-x") is an open source reverse proxy server for
   # HTTP, HTTPS, SMTP, POP3, and IMAP protocols, as well as a load balancer,
   # HTTP cache, and a web server (origin server).
   nginx:
+    container_name: nginx
     build:
       context: nginx
       args:
@@ -33,7 +65,7 @@ services:
     logging:
       driver: fluentd
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: host.docker.internal:24224
         fluentd-async-connect: 'true'
         tag: nginx
     ports:
@@ -45,15 +77,25 @@ services:
 
   # Metricbeat is a lightweight shipper that you can install on your servers to periodically
   # collect metrics from the operating system and from services running on the server.
-  appbeat:
+  metricbeat:
+    container_name: metricbeat
     build:
-      context: appbeat
+      context: metricbeat
       args:
         VERSION: 6.4.2
+    environment:
+      ELASTICSEARCH: host.docker.internal:9200
+      KIBANA: host.docker.internal:5601
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/hostfs
     networks:
       - applicationnet
     restart: unless-stopped
     mem_limit: 1g
+
 
 networks:
   applicationnet:
