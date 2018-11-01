@@ -75,22 +75,56 @@ diff -Naur --exclude=.git ./tomcat-slf4j-logback/src/assembly/conf/logback.xml .
  
 diff -Naur --exclude=.git ./tomcat-slf4j-logback/tomcat9/pom.xml ./tomcat-slf4j-logback-changed/tomcat9/pom.xml
 --- ./tomcat-slf4j-logback/tomcat9/pom.xml	2018-11-01 21:40:16.000000000 +0100
-+++ ./tomcat-slf4j-logback-changed/tomcat9/pom.xml	2018-11-01 21:00:54.000000000 +0100
-@@ -70,6 +70,7 @@
++++ ./tomcat-slf4j-logback-changed/tomcat9/pom.xml	2018-11-01 22:41:54.000000000 +0100
+@@ -70,6 +70,10 @@
                                      <include>org.slf4j:slf4j-api</include>
                                      <include>ch.qos.logback:logback-classic</include>
                                      <include>ch.qos.logback:logback-core</include>
 +                                    <include>net.logstash.logback:logstash-logback-encoder</include>
++                                    <include>com.fasterxml.jackson.core:jackson-core</include>
++                                    <include>com.fasterxml.jackson.core:jackson-databind</include>
++                                    <include>com.fasterxml.jackson.core:jackson-annotations</include>
                                  </includes>
                              </artifactSet>
  
-@@ -113,6 +114,10 @@
+@@ -98,6 +102,26 @@
+                                         <exclude>META-INF/services/**</exclude>
+                                     </excludes>
+                                 </filter>
++
++                                <!-- Exclude LICENSE from jackson as produces collisions within the jaded jar -->
++                                <filter>
++                                    <artifact>com.fasterxml.jackson.core:jackson-core</artifact>
++                                    <excludes>
++                                        <exclude>META-INF/LICENSE</exclude>
++                                    </excludes>
++                                </filter>
++                                <filter>
++                                    <artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
++                                    <excludes>
++                                        <exclude>META-INF/LICENSE</exclude>
++                                    </excludes>
++                                </filter>
++                                <filter>
++                                    <artifact>com.fasterxml.jackson.core:jackson-annotations</artifact>
++                                    <excludes>
++                                        <exclude>META-INF/LICENSE</exclude>
++                                    </excludes>
++                                </filter>
+                             </filters>
+ 
+                             <relocations>
+@@ -113,6 +137,14 @@
                                      <pattern>ch.qos.logback</pattern>
                                      <shadedPattern>org.apache.juli.logging.ch.qos.logback</shadedPattern>
                                  </relocation>
 +                                <relocation>
 +                                    <pattern>net.logstash.logback</pattern>
 +                                    <shadedPattern>org.apache.juli.logging.net.logstash.logback</shadedPattern>
++                                </relocation>
++                                <relocation>
++                                    <pattern>com.fasterxml.jackson.core</pattern>
++                                    <shadedPattern>org.apache.juli.logging.com.fasterxml.jackson.core</shadedPattern>
 +                                </relocation>
  
                                  <!-- Located in org.apache.juli.logging.ch.qos.logback.classic.util.ContextInitializer -->

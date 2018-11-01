@@ -17,7 +17,7 @@ RUN apt-get update \
     && patch -p2 < ./tomcat.patch
 
 ENV MAVEN_OPTS=-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-RUN ./mvnw --batch-mode --projects tomcat9 --also-make clean package -DskipTests=true -Dlicense.skip=true
+RUN ./mvnw --batch-mode --projects tomcat9 --also-make clean package -Dmaven.test.skip=true -Dlicense.skip=true -Dmaven.javadoc.skip=true
 
 
 
@@ -33,7 +33,7 @@ WORKDIR /build/
 # https://www.baeldung.com/spring-boot-war-tomcat-deploy
 
 ENV MAVEN_OPTS=-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-RUN ./mvnw --batch-mode clean package -DskipTests=true
+RUN ./mvnw --batch-mode clean package  -Dmaven.test.skip=true
 
 
 
