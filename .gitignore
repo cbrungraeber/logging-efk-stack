@@ -3,6 +3,7 @@
 /simpleapplication/build/
 /simpleapplication/out/
 
+/tomcat/tomcat-slf4j-logback-changed/
 /tomcat/hello/target
 /tomcat/hello/!.mvn/wrapper/maven-wrapper.jar
 

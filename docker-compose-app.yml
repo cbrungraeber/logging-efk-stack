@@ -2,7 +2,7 @@ version: '2.3'
 
 services:
 
-  # A sample application whose logs are to be aggregated
+  # A simple application whose logs are to be aggregated
   simpleapplication:
     container_name: simpleapplication
     build:
@@ -31,7 +31,7 @@ services:
       context: tomcat
       args:
         JDK_VERSION: 8
-        TOMCAT_VERSION: 9-jre8
+        TOMCAT_VERSION: 9.0.12-jre8
     environment:
       CATALINA_OPTS: '-javaagent:/usr/local/tomcat/elastic-apm-agent.jar
       -XX:+UseG1GC

@@ -6,7 +6,7 @@ services:
       context: .
       args:
         JDK_VERSION: 8
-        TOMCAT_VERSION: 9-jre8
+        TOMCAT_VERSION: 9.0.12-jre8
     environment:
       CATALINA_OPTS: '-javaagent:/usr/local/tomcat/elastic-apm-agent.jar -Delastic.apm.service_name=tomcat -Delastic.apm.application_packages=de.eng -Delastic.apm.server_urls=http://apm-server:8200'
     ports:

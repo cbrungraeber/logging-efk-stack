@@ -1,0 +1,97 @@
+diff -Naur --exclude=.git ./tomcat-slf4j-logback/pom.xml ./tomcat-slf4j-logback-changed/pom.xml
+--- ./tomcat-slf4j-logback/pom.xml	2018-11-01 21:40:16.000000000 +0100
++++ ./tomcat-slf4j-logback-changed/pom.xml	2018-11-01 22:03:08.000000000 +0100
+@@ -146,6 +146,8 @@
+ 
+         <logback.version>1.2.3</logback.version>
+         <slf4j.version>1.7.25</slf4j.version>
++        <logstashLogbackEncoder.version>5.2</logstashLogbackEncoder.version>
++        <jackson.version>2.9.7</jackson.version>
+     </properties>
+ 
+     <dependencies>
+@@ -178,6 +180,31 @@
+             <artifactId>logback-access</artifactId>
+             <version>${logback.version}</version>
+         </dependency>
++
++        <dependency>
++          <groupId>net.logstash.logback</groupId>
++          <artifactId>logstash-logback-encoder</artifactId>
++          <version>${logstashLogbackEncoder.version}</version>
++        </dependency>
++
++        <dependency>
++          <groupId>com.fasterxml.jackson.core</groupId>
++          <artifactId>jackson-core</artifactId>
++          <version>${jackson.version}</version>
++        </dependency>
++
++        <dependency>
++          <groupId>com.fasterxml.jackson.core</groupId>
++          <artifactId>jackson-databind</artifactId>
++          <version>${jackson.version}</version>
++        </dependency>
++
++        <dependency>
++          <groupId>com.fasterxml.jackson.core</groupId>
++          <artifactId>jackson-annotations</artifactId>
++          <version>${jackson.version}</version>
++        </dependency>
++
+     </dependencies>
+ 
+     <profiles>
+@@ -375,6 +402,8 @@
+                                 <Tomcat-Classloader-Version>${tomcat.version}</Tomcat-Classloader-Version>
+                                 <Slf4j-Version>${slf4j.version}</Slf4j-Version>
+                                 <Logback-Version>${logback.version}</Logback-Version>
++                                <LogstashLogbackEncoder-Version>${logstashLogbackEncoder.version}</LogstashLogbackEncoder-Version>
++                                <Jackson-Version>${jackson.version}</Jackson-Version>
+                                 <Os-Name>${os.name}</Os-Name>
+                                 <Os-Arch>${os.arch}</Os-Arch>
+                                 <Os-Version>${os.version}</Os-Version>
+@@ -403,6 +432,8 @@
+                                 <Tomcat-Classloader-Version>${tomcat.version}</Tomcat-Classloader-Version>
+                                 <Slf4j-Version>${slf4j.version}</Slf4j-Version>
+                                 <Logback-Version>${logback.version}</Logback-Version>
++                                <LogstashLogbackEncoder-Version>${logstashLogbackEncoder.version}</LogstashLogbackEncoder-Version>
++                                <Jackson-Version>${jackson.version}</Jackson-Version>
+                                 <Os-Name>${os.name}</Os-Name>
+                                 <Os-Arch>${os.arch}</Os-Arch>
+                                 <Os-Version>${os.version}</Os-Version>
+diff -Naur --exclude=.git ./tomcat-slf4j-logback/src/assembly/conf/logback.xml ./tomcat-slf4j-logback-changed/src/assembly/conf/logback.xml
+--- ./tomcat-slf4j-logback/src/assembly/conf/logback.xml	2018-11-01 21:40:16.000000000 +0100
++++ ./tomcat-slf4j-logback-changed/src/assembly/conf/logback.xml	2018-11-01 21:02:16.000000000 +0100
+@@ -17,8 +17,7 @@
+     <property name="max.retention.days" value="60" />
+ 
+     <appender name="CONSOLE" class="org.apache.juli.logging.ch.qos.logback.core.ConsoleAppender">
+-        <encoder>
+-            <pattern>%d{HH:mm:ss.SSS} %-5level {%thread} [%logger{20}] : %msg%n</pattern>
++        <encoder class="org.apache.juli.logging.net.logstash.logback.encoder.LogstashEncoder">
+         </encoder>
+     </appender>
+ 
+diff -Naur --exclude=.git ./tomcat-slf4j-logback/tomcat9/pom.xml ./tomcat-slf4j-logback-changed/tomcat9/pom.xml
+--- ./tomcat-slf4j-logback/tomcat9/pom.xml	2018-11-01 21:40:16.000000000 +0100
++++ ./tomcat-slf4j-logback-changed/tomcat9/pom.xml	2018-11-01 21:00:54.000000000 +0100
+@@ -70,6 +70,7 @@
+                                     <include>org.slf4j:slf4j-api</include>
+                                     <include>ch.qos.logback:logback-classic</include>
+                                     <include>ch.qos.logback:logback-core</include>
++                                    <include>net.logstash.logback:logstash-logback-encoder</include>
+                                 </includes>
+                             </artifactSet>
+ 
+@@ -113,6 +114,10 @@
+                                     <pattern>ch.qos.logback</pattern>
+                                     <shadedPattern>org.apache.juli.logging.ch.qos.logback</shadedPattern>
+                                 </relocation>
++                                <relocation>
++                                    <pattern>net.logstash.logback</pattern>
++                                    <shadedPattern>org.apache.juli.logging.net.logstash.logback</shadedPattern>
++                                </relocation>
+ 
+                                 <!-- Located in org.apache.juli.logging.ch.qos.logback.classic.util.ContextInitializer -->
+                                 <relocation>
